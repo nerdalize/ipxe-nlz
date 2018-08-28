@@ -44,6 +44,8 @@ struct imgtrust_options {
 	int allow;
 	/** Make trust requirement permanent */
 	int permanent;
+	/** Image type to exempt from trust checking */
+	char *exempt_type;
 };
 
 /** "imgtrust" option list */
@@ -52,6 +54,8 @@ static struct option_descriptor imgtrust_opts[] = {
 		      struct imgtrust_options, allow, parse_flag ),
 	OPTION_DESC ( "permanent", 'p', no_argument,
 		      struct imgtrust_options, permanent, parse_flag ),
+	OPTION_DESC ( "exempt-type", 'x', required_argument,
+		      struct imgtrust_options, exempt_type, parse_string ),
 };
 
 /** "imgtrust" command descriptor */
@@ -67,6 +71,7 @@ static struct command_descriptor imgtrust_cmd =
  */
 static int imgtrust_exec ( int argc, char **argv ) {
 	struct imgtrust_options opts;
+	struct image_type *type;
 	int rc;
 
 	/* Parse options */
@@ -79,6 +84,16 @@ static int imgtrust_exec ( int argc, char **argv ) {
 		printf ( "Could not set image trust requirement: %s\n",
 			 strerror ( rc ) );
 		return rc;
+	}
+
+	/* Add type exemption to list */
+	if ( opts.exempt_type ) {
+		for_each_table_entry ( type, IMAGE_TYPES ) {
+			if ( strcmp ( type->name, opts.exempt_type ) == 0 ) {
+				type->flags |= IMAGE_TYPE_TRUSTED;
+				break;
+			}
+		}
 	}
 
 	return 0;

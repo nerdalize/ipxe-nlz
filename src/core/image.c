@@ -317,7 +317,7 @@ int image_exec ( struct image *image ) {
 	}
 
 	/* Check that image is trusted (if applicable) */
-	if ( require_trusted_images && ! ( image->flags & IMAGE_TRUSTED ) ) {
+	if ( require_trusted_images && ! image_is_trusted ( image ) ) {
 		DBGC ( image, "IMAGE %s is not trusted\n", image->name );
 		rc = -EACCES_UNTRUSTED;
 		goto err;
