@@ -64,6 +64,9 @@ static int require_trusted_images = 0;
 /** Prevent changes to image trust requirement */
 static int require_trusted_images_permanent = 0;
 
+/** Allow scripts to bypass image trust requirement */
+static int require_trusted_images_allow_scripts = 0;
+
 /**
  * Free executable image
  *
@@ -317,7 +320,9 @@ int image_exec ( struct image *image ) {
 	}
 
 	/* Check that image is trusted (if applicable) */
-	if ( require_trusted_images && ! ( image->flags & IMAGE_TRUSTED ) ) {
+	if ( require_trusted_images && ! ( image->flags & IMAGE_TRUSTED ) &&
+	     ! ( require_trusted_images_allow_scripts &&
+	         ! strcmp ( image->type->name, "script" ) ) ) {
 		DBGC ( image, "IMAGE %s is not trusted\n", image->name );
 		rc = -EACCES_UNTRUSTED;
 		goto err;
@@ -465,12 +470,13 @@ struct image * image_find_selected ( void ) {
  * @v permanent		Make trust requirement permanent
  * @ret rc		Return status code
  */
-int image_set_trust ( int require_trusted, int permanent ) {
+int image_set_trust ( int require_trusted, int permanent, int allow_scripts ) {
 
 	/* Update trust requirement, if permitted to do so */
 	if ( ! require_trusted_images_permanent ) {
 		require_trusted_images = require_trusted;
 		require_trusted_images_permanent = permanent;
+		require_trusted_images_allow_scripts = allow_scripts;
 	}
 
 	/* Fail if we attempted to change the trust requirement but

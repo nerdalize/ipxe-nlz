@@ -44,6 +44,8 @@ struct imgtrust_options {
 	int allow;
 	/** Make trust requirement permanent */
 	int permanent;
+	/** Exempt scripts from signature checking */
+	int allow_scripts;
 };
 
 /** "imgtrust" option list */
@@ -52,6 +54,8 @@ static struct option_descriptor imgtrust_opts[] = {
 		      struct imgtrust_options, allow, parse_flag ),
 	OPTION_DESC ( "permanent", 'p', no_argument,
 		      struct imgtrust_options, permanent, parse_flag ),
+	OPTION_DESC ( "allow-scripts", 's', no_argument,
+		      struct imgtrust_options, allow_scripts, parse_flag ),
 };
 
 /** "imgtrust" command descriptor */
@@ -75,7 +79,8 @@ static int imgtrust_exec ( int argc, char **argv ) {
 
 	/* Set trust requirement */
 	if ( ( rc = image_set_trust ( ( ! opts.allow ),
-				      opts.permanent ) ) != 0 ) {
+				      opts.permanent,
+				      opts.allow_scripts ) ) != 0 ) {
 		printf ( "Could not set image trust requirement: %s\n",
 			 strerror ( rc ) );
 		return rc;
