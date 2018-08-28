@@ -76,6 +76,8 @@ struct image {
 struct image_type {
 	/** Name of this image type */
 	char *name;
+	/** Flags */
+	unsigned int flags;
 	/**
 	 * Probe image
 	 *
@@ -114,6 +116,9 @@ struct image_type {
 	int ( * asn1 ) ( struct image *image, size_t offset,
 			 struct asn1_cursor **cursor );
 };
+
+/** Images of this type are trusted by default */
+#define IMAGE_TYPE_TRUSTED 0x0001
 
 /**
  * Multiboot image probe priority
@@ -232,6 +237,17 @@ static inline void image_trust ( struct image *image ) {
  */
 static inline void image_untrust ( struct image *image ) {
 	image->flags &= ~IMAGE_TRUSTED;
+}
+
+/**
+ * Check whether image is trusted
+ *
+ * @v image		Image
+ * @ret bool		Whether image is trusted or not
+ */
+static inline int image_is_trusted ( struct image *image ) {
+	return ( image->flags & IMAGE_TRUSTED ) ||
+	       ( image->type && ( image->type->flags & IMAGE_TYPE_TRUSTED ) );
 }
 
 #endif /* _IPXE_IMAGE_H */
