@@ -115,6 +115,7 @@ static int der_probe ( struct image *image ) {
 /** DER image type */
 struct image_type der_image_type __image_type ( PROBE_NORMAL ) = {
 	.name = "DER",
+	.flags = IMAGE_TYPE_TRUSTED,
 	.probe = der_probe,
 	.asn1 = der_asn1,
 };

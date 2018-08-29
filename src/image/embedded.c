@@ -74,6 +74,8 @@ static void embedded_init ( void ) {
 			      "%s\n", image->name, strerror ( rc ) );
 			return;
 		}
+		/* Embedded images are automatically trusted */
+		image_trust ( image );
 	}
 
 	/* Select the first image */

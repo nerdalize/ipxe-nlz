@@ -64,6 +64,9 @@ static int require_trusted_images = 0;
 /** Prevent changes to image trust requirement */
 static int require_trusted_images_permanent = 0;
 
+/** Require all loaded images to be trusted */
+static int require_trusted_images_all = 0;
+
 /**
  * Free executable image
  *
@@ -291,6 +294,7 @@ struct image * find_image ( const char *name ) {
 int image_exec ( struct image *image ) {
 	struct image *saved_current_image;
 	struct image *replacement = NULL;
+	struct image *check_image;
 	struct uri *old_cwuri;
 	int rc;
 
@@ -321,6 +325,17 @@ int image_exec ( struct image *image ) {
 		DBGC ( image, "IMAGE %s is not trusted\n", image->name );
 		rc = -EACCES_UNTRUSTED;
 		goto err;
+	}
+
+	/* Check that all loaded images are trusted if needed */
+	if ( require_trusted_images_all ) {
+		for_each_image ( check_image ) {
+			if ( ! image_is_trusted ( check_image ) ) {
+				DBGC ( image, "Loaded IMAGE %s is not trusted\n", check_image->name );
+				rc = -EACCES_UNTRUSTED;
+				goto err;
+			}
+		}
 	}
 
 	/* Record boot attempt */
@@ -465,12 +480,13 @@ struct image * image_find_selected ( void ) {
  * @v permanent		Make trust requirement permanent
  * @ret rc		Return status code
  */
-int image_set_trust ( int require_trusted, int permanent ) {
+int image_set_trust ( int require_trusted, int require_all, int permanent ) {
 
 	/* Update trust requirement, if permitted to do so */
 	if ( ! require_trusted_images_permanent ) {
 		require_trusted_images = require_trusted;
 		require_trusted_images_permanent = permanent;
+		require_trusted_images_all = require_all;
 	}
 
 	/* Fail if we attempted to change the trust requirement but

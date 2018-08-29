@@ -237,6 +237,7 @@ static int pem_image_asn1 ( struct image *image, size_t offset,
 /** PEM image type */
 struct image_type pem_image_type __image_type ( PROBE_NORMAL ) = {
 	.name = "PEM",
+	.flags = IMAGE_TYPE_TRUSTED,
 	.probe = pem_image_probe,
 	.asn1 = pem_image_asn1,
 };

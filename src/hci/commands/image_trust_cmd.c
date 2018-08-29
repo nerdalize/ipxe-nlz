@@ -44,6 +44,8 @@ struct imgtrust_options {
 	int allow;
 	/** Make trust requirement permanent */
 	int permanent;
+	/** Require all loaded images to be trusted */
+	int all;
 	/** Image type to exempt from trust checking */
 	char *exempt_type;
 };
@@ -54,6 +56,8 @@ static struct option_descriptor imgtrust_opts[] = {
 		      struct imgtrust_options, allow, parse_flag ),
 	OPTION_DESC ( "permanent", 'p', no_argument,
 		      struct imgtrust_options, permanent, parse_flag ),
+	OPTION_DESC ( "all", 'e', no_argument,
+		      struct imgtrust_options, all, parse_flag ),
 	OPTION_DESC ( "exempt-type", 'x', required_argument,
 		      struct imgtrust_options, exempt_type, parse_string ),
 };
@@ -80,6 +84,7 @@ static int imgtrust_exec ( int argc, char **argv ) {
 
 	/* Set trust requirement */
 	if ( ( rc = image_set_trust ( ( ! opts.allow ),
+				      opts.all,
 				      opts.permanent ) ) != 0 ) {
 		printf ( "Could not set image trust requirement: %s\n",
 			 strerror ( rc ) );

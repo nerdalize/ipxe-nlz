@@ -187,7 +187,7 @@ extern int image_exec ( struct image *image );
 extern int image_replace ( struct image *replacement );
 extern int image_select ( struct image *image );
 extern struct image * image_find_selected ( void );
-extern int image_set_trust ( int require_trusted, int permanent );
+extern int image_set_trust ( int require_trusted, int require_all, int permanent );
 extern int image_pixbuf ( struct image *image, struct pixel_buffer **pixbuf );
 extern int image_asn1 ( struct image *image, size_t offset,
 			struct asn1_cursor **cursor );
